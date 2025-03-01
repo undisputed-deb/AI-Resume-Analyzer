@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Resume Report</title>
+</head>
+<body>
+
+<h2>Resume Analysis Report</h2>
+<p><strong>Job Role:</strong> {{ analysis['job_role'] }}</p>
+<p><strong>Overall Score:</strong> {{ analysis['overall_score'] }}%</p>
+
+<h3>Resume Comparison</h3>
+<ul>
+    {% for item in analysis['resume_comparison'] %}
+        <li>{{ item }}</li>
+    {% endfor %}
+</ul>
+
+<h3>Job Suggestions</h3>
+<ul>
+    {% for job in analysis['recommended_jobs'] %}
+        <li>{{ job }}</li>
+    {% endfor %}
+</ul>
+
+<h3>Resume Feedback</h3>
+<ul>
+    {% for feedback in analysis['resume_feedback'] %}
+        <li>{{ feedback }}</li>
+    {% endfor %}
+</ul>
+
+<h3>Resume Enhancement Suggestions</h3>
+<ul>
+    {% for enhancement in analysis['resume_enhancement'] %}
+        <li>{{ enhancement }}</li>
+    {% endfor %}
+</ul>
+
+</body>
+</html>

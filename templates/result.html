@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Analyzer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+            text-align: center;
+        }
+        .score-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .score-box {
+            text-align: center;
+        }
+        .score-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            margin-top: 10px;
+        }
+        .high { background-color: #28a745; }   /* Green */
+        .medium { background-color: #ffc107; } /* Yellow */
+        .low { background-color: #dc3545; }    /* Red */
+        .fade-in {
+            animation: fade-in 1.5s ease-in-out;
+        }
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .animated-box {
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            animation: slide-in 1.2s ease-in-out;
+        }
+        @keyframes slide-in {
+            from { transform: translateX(-50px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        #scanning-effect {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 50px;
+        }
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .verdict-box {
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .excellent { background-color: #28a745; color: white; }
+        .decent { background-color: #ffc107; color: black; }
+        .needs-improvement { background-color: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2 class="text-center">📊 AI Resume Analyzer</h2>
+        <hr>
+
+        <!-- Scanning Animation -->
+        <div id="scanning-effect">
+            <div class="loader"></div>
+            <p>🔍 Scanning your resume...</p>
+        </div>
+
+        <!-- Results Section (Initially Hidden) -->
+        <div id="results-section" style="display: none;">
+            <p><b>Job Role:</b> <span class="badge bg-primary">{{ analysis.job_role }}</span></p>
+
+            <!-- Resume Scores -->
+            <h3 class="text-center">Resume Score</h3>
+            <div class="score-container">
+                <div class="score-box">
+                    <p><b>🛠 Skills & Experience</b></p>
+                    <div class="score-circle {% if analysis['skills_score'] >= 80 %}high{% elif analysis['skills_score'] >= 60 %}medium{% else %}low{% endif %}">{{ analysis["skills_score"] }}%</div>
+                </div>
+                <div class="score-box">
+                    <p><b>🎯 Leadership & Soft Skills</b></p>
+                    <div class="score-circle {% if analysis['leadership_score'] >= 80 %}high{% elif analysis['leadership_score'] >= 60 %}medium{% else %}low{% endif %}">{{ analysis["leadership_score"] }}%</div>
+                </div>
+                <div class="score-box">
+                    <p><b>📜 Certifications & ATS Optimization</b></p>
+                    <div class="score-circle {% if analysis['certification_score'] >= 80 %}high{% elif analysis['certification_score'] >= 60 %}medium{% else %}low{% endif %}">{{ analysis["certification_score"] }}%</div>
+                </div>
+            </div>
+
+            <!-- Resume Analysis -->
+            <h4>📌 Resume Analysis</h4>
+            <div class="animated-box">
+                <ul>
+                    {% for analysis_point in analysis.resume_analysis %}
+                        <li>✔ {{ analysis_point }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Resume Feedback -->
+            <h4>📝 Resume Feedback</h4>
+            <div class="animated-box">
+                <ul>
+                    {% for feedback in analysis.resume_feedback %}
+                        <li>🔹 {{ feedback }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Resume Enhancement Suggestions -->
+            <h4>🚀 Resume Enhancement</h4>
+            <div class="animated-box">
+                <ul>
+                    {% for suggestion in analysis.resume_enhancement %}
+                        <li>💡 {{ suggestion }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <!-- Overall Verdict -->
+            <h3 class="text-center mt-4">Overall Verdict</h3>
+            <div class="animated-box verdict-box {% if analysis['overall_score'] >= 80 %}excellent{% elif analysis['overall_score'] >= 60 %}decent{% else %}needs-improvement{% endif %}">
+                {% if analysis['overall_score'] >= 80 %}
+                    🌟 Excellent Resume! Great job!
+                {% elif analysis['overall_score'] >= 60 %}
+                    ⚠️ Decent Resume! Needs Some Improvements.
+                {% else %}
+                    ❌ Needs Major Improvement!
+                {% endif %}
+            </div>
+
+            <a href="/" class="btn btn-primary">⬅ Upload Another Resume</a>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            $("#results-section").hide();
+            $("#scanning-effect").show();
+
+            setTimeout(function(){
+                $("#scanning-effect").hide();
+                $("#results-section").fadeIn();
+            }, 3000);
+        });
+    </script>
+
+</body>
+</html>
