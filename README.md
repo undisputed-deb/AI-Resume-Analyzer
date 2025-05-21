@@ -1,17 +1,31 @@
 📊 AI Resume Analyzer
-🚀 AI-powered resume analysis tool that evaluates resumes for strengths, weaknesses, ATS optimization, and keyword matching to improve job application success.
 
+🚀 An AI-powered resume analysis tool that evaluates resumes for strengths, weaknesses, ATS optimization, and keyword matching to improve job application success — now enhanced with Gemini AI integration.
+
+---
 📌 Features
-✅ Dynamic Resume Analysis – Provides strengths, weaknesses, and feedback specific to the uploaded resume.
-🔍 Keyword Match Insights – Identifies missing and matched keywords relevant to the job role.
-📊 Scoring System – Rates Skills & Experience, Leadership & Soft Skills, Certifications & ATS Optimization.
-🚀 Resume Enhancement Suggestions – Offers actionable recommendations to improve resume structure and content.
-🎯 Real-Time ATS Compatibility Check – Ensures your resume is optimized for Applicant Tracking Systems.
-🎨 Interactive & Animated UI – Displays scanning animation, colored score indicators, and an intuitive design.
-🛠️ Tech Stack
-Backend: Flask (Python)
-Frontend: HTML, CSS, Bootstrap, jQuery
-PDF & Doc Parsing: PyMuPDF (fitz), python-docx
+
+- ✅ Dynamic Resume Analysis – Personalized strengths, weaknesses, and expert feedback powered by Gemini AI.
+- 🔍 Keyword Match Insights – Identifies missing and matched keywords relevant to the job role.
+- 📊 Scoring System – Rates:
+  - Skills & Experience
+  - Leadership & Soft Skills
+  - Certifications & ATS Optimization
+- 🚀 Resume Enhancement Suggestions – Actionable improvement tips.
+- 🎯 Real-Time ATS Compatibility Check – Simulates how recruiters and ATS systems evaluate your resume.
+- 🤖 Gemini AI Integration – Uses gemini-pro or gemini-1.5-pro to generate resume verdicts, scores, suggestions, and keyword insights.
+- 🎨 Interactive UI – Animated scan effects and colorful result boxes for a modern experience.
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer      | Technologies                                    |
+|------------|-------------------------------------------------|
+| Backend    | Flask (Python)                                  |
+| Frontend   | HTML, CSS   |
+| AI         | Google Gemini API (`gemini-pro`, `gemini-1.5-pro`) |
+| Parsing    | PyMuPDF (`fitz`),
 Resume Processing Modules:
 extract_text_from_pdf()
 extract_text_from_docx()
