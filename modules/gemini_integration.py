@@ -1,47 +1,50 @@
-import google.generativeai as genai
 import os
-import random
+import google.generativeai as genai
 from dotenv import load_dotenv
+import json
 
-# Load API Key from .env
-dotenv_path = os.path.join(os.path.dirname(__file__), "..", ".env")
-load_dotenv(dotenv_path)
-
-# Get the Gemini API key
+# Load API key
+load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 if not GEMINI_API_KEY:
     raise ValueError("❌ ERROR: Gemini API Key is missing. Check your .env file!")
 
-# Configure Google Gemini AI
 genai.configure(api_key=GEMINI_API_KEY)
 
 def analyze_resume_with_gemini(resume_text, job_role):
-    """Send resume text to Gemini AI for expert analysis and return structured data."""
     prompt = f"""
-    You are a professional career advisor evaluating resumes for a {job_role} position.
+    You are a professional AI resume reviewer. A user uploaded their resume applying for the role of {job_role}.
 
-    The candidate's resume text:
+    Resume Text:
     {resume_text}
 
-    Provide the following in a structured format:
-    - Readability score (between 1 to 100)
-    - Letter grade (A, B, C, D, or F) based on the resume quality
-    - Percentile rank (simulated as a percentage)
-    - Expert verdict: A brief analysis of the resume for a {job_role} role
-    - Additional recommendations to improve the resume
-    
-    Return the response in JSON format like this:
+    Please analyze and respond in EXACT JSON format:
     {{
-      "readability_score": <score>,
-      "grade": "<letter>",
-      "percentile_rank": <percentage>,
-      "expert_verdict": "<analysis>",
-      "improvement_suggestions": ["suggestion1", "suggestion2"]
+      "readability_score": <score from 0 to 100>,
+      "grade": "<letter grade A-F>",
+      "percentile_rank": <0-100>,
+      "resume_verdict": "<a concise verdict>",
+      "resume_analysis": ["...", "..."],
+      "resume_feedback": ["...", "..."],
+      "resume_enhancement": ["...", "..."],
+      "resume_strengths": ["...", "..."],
+      "resume_weaknesses": ["...", "..."],
+      "keyword_match": ["...", "..."]
     }}
     """
 
-    model = genai.GenerativeModel("gemini-pro")
-    response = model.generate_content(prompt)
+    try:
+        model = genai.GenerativeModel("gemini-1.5-flash")
 
-    return response.text  # Return the JSON response from Gemini
+        response = model.generate_content(prompt)
+        raw = response.text.strip()
+
+        if raw.startswith("```"):
+            raw = raw.strip("`").strip("json").strip()
+
+        return json.loads(raw)
+
+    except Exception as e:
+        print("❌ Gemini Error:", e)
+        return None

@@ -1,16 +1,16 @@
-from flask import Flask, request, render_template
 import os
 import time
+from flask import Flask, request, render_template
 from modules.extract import extract_text_from_pdf, extract_text_from_docx
 from modules.preprocess import preprocess_text
-from modules.analyze import evaluate_resume
+from modules.gemini_integration import analyze_resume_with_gemini  # Gemini integration
+
+print("🚀 Flask app starting...")
 
 app = Flask(__name__)
-
 UPLOAD_FOLDER = "uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-
 
 @app.route("/", methods=["GET", "POST"])
 def upload_resume():
@@ -27,7 +27,7 @@ def upload_resume():
         file_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
         file.save(file_path)
 
-        text = ""
+        # Extract and clean resume text
         if filename.endswith(".pdf"):
             text = extract_text_from_pdf(file_path)
         elif filename.endswith(".docx"):
@@ -37,74 +37,35 @@ def upload_resume():
 
         cleaned_text = preprocess_text(text)
 
-        # Simulating AI scanning delay
-        time.sleep(3)
+        # Simulate delay
+        time.sleep(2)
 
-        # Evaluate resume
-        feedback = evaluate_resume(cleaned_text, job_role)
+        # Call Gemini API
+        feedback = analyze_resume_with_gemini(cleaned_text, job_role)
 
         if not feedback:
             return render_template("index.html", error="⚠️ Unable to analyze resume. Please try again.")
 
+        # Construct analysis dictionary for result.html
         analysis = {
             "job_role": job_role,
-            "overall_score": round((feedback.get("skills_score", 70) +
-                                    feedback.get("leadership_score", 65) +
-                                    feedback.get("certification_score", 60)) / 3),
-            "skills_score": feedback.get("skills_score", 80),
-            "leadership_score": feedback.get("leadership_score", 65),
-            "certification_score": feedback.get("certification_score", 60),
-
-            # Resume Verdicts
-            "resume_verdict": "🌟 Excellent Resume!" if feedback.get("match_score", 75) >= 80 
-                              else "⚠️ Decent Resume! Needs Some Improvements." if feedback.get("match_score", 75) >= 60 
-                              else "❌ Needs Major Improvement!",
-
-            # Resume Analysis
-            "resume_analysis": feedback.get("resume_analysis", [
-                "🏆 Strong technical skills and experience.",
-                "📌 Well-structured resume with clear formatting.",
-                "⚡ Leadership and teamwork experience is highlighted.",
-                "✅ ATS optimized with industry-relevant keywords."
-            ]),
-
-            # Resume Feedback
-            "resume_feedback": feedback.get("resume_feedback", [
-                "Use bullet points for clarity.",
-                "Quantify achievements to strengthen impact.",
-                "Improve consistency in font and spacing."
-            ]),
-
-            # Resume Enhancement Suggestions
-            "resume_enhancement": feedback.get("resume_enhancement", [
-                "Add a summary statement at the top to highlight key strengths.",
-                "Optimize keywords to improve ATS ranking.",
-                "Include measurable metrics for achievements."
-            ]),
-
-            # New Features Added
-            "resume_strengths": feedback.get("resume_strengths", [
-                "✅ Highlighted problem-solving skills.",
-                "✅ Well-formatted and visually structured resume.",
-                "✅ Relevant industry keywords are used effectively."
-            ]),
-
-            "resume_weaknesses": feedback.get("resume_weaknesses", [
-                "⚠️ Too much text - consider summarizing key points.",
-                "⚠️ Missing measurable achievements in work experience.",
-                "⚠️ Improve ATS optimization by including more relevant keywords."
-            ]),
-
-            "keyword_match": feedback.get("keyword_match", [
-                "📌 Found relevant keywords for Software Engineering: Python, SQL, AI, Machine Learning.",
-                "📌 Missing key industry phrases such as Agile Methodology, DevOps, or Cloud Computing."
-            ])
+            "overall_score": round((feedback.get("readability_score", 70) + feedback.get("percentile_rank", 60)) / 2),
+            "readability_score": feedback.get("readability_score", 70),
+            "percentile_rank": feedback.get("percentile_rank", 60),
+            "grade": feedback.get("grade", "B"),
+            "resume_verdict": feedback.get("resume_verdict", "⚠️ No verdict returned."),
+            "resume_analysis": feedback.get("resume_analysis", []),
+            "resume_feedback": feedback.get("resume_feedback", []),
+            "resume_enhancement": feedback.get("resume_enhancement", []),
+            "resume_strengths": feedback.get("resume_strengths", []),
+            "resume_weaknesses": feedback.get("resume_weaknesses", []),
+            "keyword_match": feedback.get("keyword_match", [])
         }
 
         return render_template("result.html", analysis=analysis)
 
     return render_template("index.html")
 
-
 if __name__ == "__main__":
+    print("✅ Running Flask on http://127.0.0.1:5000")
     app.run(debug=True)
