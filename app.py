@@ -5,7 +5,7 @@ from modules.extract import extract_text_from_pdf, extract_text_from_docx
 from modules.preprocess import preprocess_text
 from modules.gemini_integration import analyze_resume_with_gemini  # Gemini integration
 
-print("🚀 Flask app starting...")
+print(" Flask app starting...")
 
 app = Flask(__name__)
 UPLOAD_FOLDER = "uploads"

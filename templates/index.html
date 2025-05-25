@@ -3,17 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfect AI Resume Analyzer</title>
+    <title> AI Resume Analyzer</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/waypoints/4.0.1/jquery.waypoints.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"></script>
     <style>
         body {
-            background: linear-gradient(135deg, #4A00E0, #8E2DE2);
+            background: linear-gradient(135deg, #4A00E0, #8E2DE2); /* Fallback/initial */
             color: white;
             font-family: Arial, sans-serif;
             overflow-x: hidden;
+            perspective: 1000px;
+            transition: background 0.3s linear;
         }
         .container {
             max-width: 1100px;
@@ -24,12 +26,16 @@
             box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
             margin-top: 50px;
             color: black;
+            position: relative;
+            z-index: 3;
         }
         .navbar {
             display: flex;
             justify-content: space-between;
             padding: 20px;
             background: rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 10;
         }
         .navbar a {
             color: white;
@@ -43,102 +49,394 @@
             border-radius: 5px;
             font-weight: bold;
         }
-        .hero-section {
-            text-align: center;
-            padding: 60px;
-        }
-        .hero-title {
-            font-size: 40px;
-            font-weight: bold;
-        }
-        .highlight {
-            color: #ffcc00;
-        }
-        .content-section {
+
+        /* --- Hero Section with Full Landscape Image & New Animation --- */
+        .hero-section.full-width-image {
+            position: relative;
+            width: 100%;
+            min-height: 70vh;
             display: flex;
-            justify-content: space-between;
-            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .hero-image-full {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            animation: heroImageRotate 25s linear infinite; /* Updated Animation */
+            transform-style: preserve-3d;
+        }
+        
+        @keyframes heroImageRotate { /* New Rotation Animation */
+            0% {
+                transform: perspective(1500px) rotateY(0deg) rotateX(2deg) scale(1.03);
+            }
+            50% {
+                transform: perspective(1500px) rotateY(15deg) rotateX(-2deg) scale(1.05);
+            }
+            100% {
+                transform: perspective(1500px) rotateY(0deg) rotateX(2deg) scale(1.03);
+            }
+        }
+
+        .hero-content-overlay {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 900px;
+            padding: 40px;
             text-align: center;
-        }
-        .box {
-            flex: 1;
-            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.45);
             border-radius: 10px;
-            transition: background 0.5s ease-in-out, transform 0.5s ease-in-out;
         }
-        .box:hover {
-            transform: scale(1.05);
+        
+        .hero-text-content .hero-title,
+        .hero-text-content > p {
+            transition: transform 0.2s ease-out, opacity 0.2s ease-out; /* For parallax */
         }
-        .box-left {
-            background: linear-gradient(45deg, #007bff, #6610f2);
+
+        .hero-section.full-width-image .hero-title {
+            font-size: 3.2em;
+            margin-bottom: 0.5em;
             color: white;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
         }
-        .box-middle {
-            background: linear-gradient(45deg, #28a745, #20c997);
+
+        .hero-section.full-width-image p {
+            font-size: 1.2em;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 0;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
+            max-width: 600px;
+        }
+        .highlight { color: #ffcc00; }
+
+
+        .floating-elements-wrapper {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0; perspective: 800px; overflow: hidden;
+        }
+        @keyframes float3DAnimation { /* For small decorative floaters */
+            0%   { transform: translate3d(0,0,0) rotateX(0deg) rotateY(0deg) rotateZ(0deg); opacity: 0.1; }
+            25%  { transform: translate3d(10px,-20px,15px) rotateX(15deg) rotateY(10deg) rotateZ(5deg); opacity: 0.3; }
+            50%  { transform: translate3d(-5px,5px,-10px) rotateX(-10deg) rotateY(-15deg) rotateZ(-5deg); opacity: 0.2; }
+            75%  { transform: translate3d(5px,15px,5px) rotateX(5deg) rotateY(5deg) rotateZ(10deg); opacity: 0.3; }
+            100% { transform: translate3d(0,0,0) rotateX(0deg) rotateY(0deg) rotateZ(0deg); opacity: 0.1; }
+        }
+        .floating-element {
+            position: absolute; background-color: rgba(255,255,255,0.7); opacity: 0;
+            animation-name: float3DAnimation; animation-timing-function: ease-in-out; animation-iteration-count: infinite;
+        }
+        .floating-element.fe-style1 { border-radius: 8px; background-color: rgba(200,220,255,0.7); }
+        .floating-element.fe-style2 { border-radius: 50%; background-color: rgba(255,200,220,0.7); }
+
+
+        /* Responsive Adjustments for Hero */
+        @media (max-width: 991px) {
+            .hero-section.full-width-image { min-height: 60vh; }
+            .hero-content-overlay { max-width: 90%; padding: 30px; background: rgba(0,0,0,0.55); }
+            .hero-section.full-width-image .hero-title { font-size: 2.8em; }
+            .hero-section.full-width-image p { font-size: 1.1em; }
+        }
+        @media (max-width: 767px) {
+            .hero-section.full-width-image { min-height: 75vh; }
+            .hero-content-overlay { padding: 25px 20px; max-width: 95%; background: rgba(0,0,0,0.6); }
+            .hero-section.full-width-image .hero-title { font-size: 2.2em; }
+            .hero-section.full-width-image p { font-size: 1em; }
+        }
+
+        /* --- Modernized "Why Choose Us?" Blocks --- */
+        .content-section {
+            display: flex; flex-direction: column; gap: 30px; text-align: center;
+        }
+        @media (min-width: 768px) {
+            .content-section { flex-direction: row; justify-content: space-between; }
+        }
+        
+        .box.modern-box { /* Applied to .box elements in "Why Choose Us" */
+            background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid transparent;
+            border-radius: 15px;
+            padding: 30px 25px;
             color: white;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            flex: 1; /* Ensure boxes take equal space if in a row */
         }
-        .box-right {
-            background: linear-gradient(45deg, #ff8c00, #ff4500);
-            color: white;
+        .box.modern-box::before {
+            content: ""; position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+            z-index: -1; margin: -1px; border-radius: inherit;
         }
+        .box.modern-box.box-left::before { background: linear-gradient(135deg, #007bff, #8E2DE2); }
+        .box.modern-box.box-middle::before { background: linear-gradient(135deg, #28a745, #17a2b8); }
+        .box.modern-box.box-right::before { background: linear-gradient(135deg, #ff8c00, #fd7e14); }
+
+        .box.modern-box:hover {
+            transform: translateY(-10px) scale(1.03);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .box-icon {
+            font-size: 2.5em; margin-bottom: 15px; line-height: 1;
+        }
+        .box.modern-box.box-left .box-icon { color: #007bff; }
+        .box.modern-box.box-middle .box-icon { color: #28a745; }
+        .box.modern-box.box-right .box-icon { color: #ff8c00; }
+        .box.modern-box h4 { font-size: 1.3em; margin-bottom: 10px; color: #fff; }
+        .box.modern-box p { font-size: 0.95em; color: rgba(255,255,255,0.8); line-height: 1.6; }
+
+
+        /* --- Modernized "What Users Say" --- */
+        /* --- Refined "What Users Say" Section --- */
+.testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px; /* Space between testimonial items */
+    margin-top: 30px;
+}
+
+.testimonial-item { /* Changed from .testimonial-card */
+    padding: 20px 0px 20px 25px; /* Padding mainly for the left indent and quote mark */
+    border-left: 4px solid #ffcc00; /* Accent border using your highlight color */
+    margin-bottom: 20px; /* Ensures spacing if they stack in a single column */
+    /* No background or box-shadow for a cleaner, text-focused look */
+}
+
+.testimonial-text {
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.9); /* Light text color */
+    margin-bottom: 10px;
+    position: relative;
+    padding-left: 45px; /* Increased space for the larger quote mark */
+    font-size: 1.05em;  /* Slightly larger for readability */
+    line-height: 1.7;
+}
+
+.testimonial-text::before {
+    content: '“'; /* Large opening quote mark */
+    font-family: Georgia, serif; /* Or another serif font you prefer for quotes */
+    font-size: 4em;  /* Make the quote mark prominent */
+    color: #ffcc00;   /* Your highlight color */
+    position: absolute;
+    left: -5px;      /* Position it slightly into the border area */
+    top: -20px;      /* Adjust vertical alignment */
+    line-height: 1;
+    opacity: 0.8;   /* Slight transparency for the quote mark */
+}
+
+.testimonial-author {
+    font-weight: 500; /* Medium weight */
+    color: #fff;
+    text-align: right;
+    font-size: 0.95em;
+    padding-right: 10px; /* Slight indent from the right */
+    margin-top: 5px;
+}
+
+        /* --- Footer Modernization --- */
         .footer {
-            text-align: center;
-            margin-top: 30px;
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
+            text-align: center; margin-top: 30px; padding: 30px 20px;
+            background: rgba(0,0,0,0.15); border-radius: 10px; position: relative; z-index: 3;
+            border-top: 1px solid rgba(255,255,255,0.1);
         }
-        .footer a {
-            color: white;
-            text-decoration: none;
-            margin: 0 10px;
+        .footer p { margin-bottom: 15px; }
+        .footer .social-links a {
+            color: white; text-decoration: none; margin: 0 12px;
+            font-size: 1.5em; /* For icon sizing */
+            transition: color 0.3s ease, transform 0.3s ease;
         }
-        .footer a:hover {
-            text-decoration: underline;
+        .footer .social-links a:hover {
+            color: #ffcc00; transform: scale(1.1);
         }
+        .footer .social-links svg { /* Basic styling for inline SVGs if used */
+            width: 24px; height: 24px; fill: currentColor; vertical-align: middle;
+        }
+
+
+        /* General Section Pop-up Animation */
         .hidden {
             opacity: 0;
-            transform: translateY(50px);
-            transition: all 1s ease-in-out;
+            transform: translateY(80px) scale(0.85) rotateX(-30deg);
+            transform-origin: center bottom;
+            transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .visible {
             opacity: 1;
-            transform: translateY(0);
+            transform: translateY(0) scale(1) rotateX(0deg);
         }
+
+        /* Feature Box (cards for "AI-Powered Resume Insights") */
         .feature-box {
-    background: white;
-    padding: 25px;
-    border-radius: 10px;
+            background: white; padding: 25px; border-radius: 10px; text-align: center;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1); height: 100%;
+            display: flex; flex-direction: column; justify-content: space-between; color: black;
+            transition: transform 0.15s ease-out, background 0.5s ease-in-out, color 0.5s ease-in-out, box-shadow 0.3s ease-out;
+            transform-style: preserve-3d;
+        }
+        .feature-box:hover {
+            background: linear-gradient(135deg, #4A00E0, #8E2DE2); color: white;
+            box-shadow: 0px 12px 35px rgba(74, 0, 224, 0.4);
+        }
+        .feature-box .icon, .feature-box h4, .feature-box p, .feature-box ul {
+            transform: translateZ(20px);
+        }
+        .feature-box .icon { transform: translateZ(40px); }
+        .icon img { width: 60px; transition: transform 0.5s ease-in-out; }
+        .feature-box:hover .icon img { transform: scale(1.2) rotate(10deg) translateZ(0); }
+        
+        .upload-box p { font-size: 0.9rem; color: #6c757d; }
+
+        /* Add these styles to your index.html <style> block or external CSS */
+
+#scanning-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(42, 9, 100, 0.9); /* Dark purple, semi-transparent */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 9999; /* Ensure it's on top of everything */
+    display: none; /* Hidden by default */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
     text-align: center;
-    transition: transform 0.5s ease, background 0.5s ease-in-out;
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+    font-family: 'Poppins', sans-serif; /* Assuming Poppins is used, or your site's font */
 }
 
-.feature-box:hover {
-    transform: scale(1.05);
-    background: linear-gradient(135deg, #4A00E0, #8E2DE2);
-    color: white;
+.scanner-animation-container {
+    position: relative;
+    width: 150px; /* Increased size */
+    height: 200px; /* Increased size */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px; /* Space above text */
 }
 
-.icon img {
-    width: 60px;
-    transition: transform 0.5s ease-in-out;
+.document-icon {
+    width: 100px;
+    height: 140px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(0, 255, 234, 0.5); /* Teal border */
+    border-radius: 8px;
+    padding: 15px 10px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    box-shadow: 0 0 20px rgba(0, 255, 234, 0.3);
 }
 
-.feature-box:hover .icon img {
-    transform: scale(1.2) rotate(10deg);
+.document-icon .doc-line {
+    width: 100%;
+    height: 4px;
+    background-color: rgba(0, 255, 234, 0.4);
+    border-radius: 2px;
+    margin-bottom: 8px; /* Spacing between lines */
+}
+.document-icon .doc-line.short {
+    width: 60%;
 }
 
-/* Smooth animation when scrolling */
-.hidden {
+
+.scan-light {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%; /* Wider light beam */
+    height: 5px; /* Thicker beam */
+    background: linear-gradient(to bottom, rgba(0, 255, 234, 0.8), rgba(0, 255, 234, 0));
+    box-shadow: 0 0 15px #00ffea, 0 0 25px #00ffea;
+    border-radius: 50%;
+    animation: scanLightMove 2.5s infinite ease-in-out;
+}
+
+@keyframes scanLightMove {
+    0% { top: 5%; } /* Start near top of document icon */
+    50% { top: calc(100% - 15% - 5px); } /* End near bottom of document icon */
+    100% { top: 5%; }
+}
+
+.data-particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.data-particles span {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: #00ffea;
+    border-radius: 50%;
     opacity: 0;
-    transform: translateY(50px);
-    transition: all 1s ease-in-out;
+    animation: particleFlow 3s infinite ease-in-out;
 }
 
-.visible {
-    opacity: 1;
-    transform: translateY(0);
+/* Distribute particles randomly - more can be added */
+.data-particles span:nth-child(1) { top: 10%; left: 20%; animation-delay: 0s; }
+.data-particles span:nth-child(2) { top: 30%; left: 80%; animation-delay: 0.2s; }
+.data-particles span:nth-child(3) { top: 50%; left: 10%; animation-delay: 0.4s; }
+.data-particles span:nth-child(4) { top: 70%; left: 90%; animation-delay: 0.6s; }
+.data-particles span:nth-child(5) { top: 90%; left: 30%; animation-delay: 0.8s; }
+.data-particles span:nth-child(6) { top: 20%; left: 60%; animation-delay: 1s; }
+.data-particles span:nth-child(7) { top: 40%; left: 40%; animation-delay: 1.2s; }
+.data-particles span:nth-child(8) { top: 60%; left: 70%; animation-delay: 1.4s; }
+.data-particles span:nth-child(9) { top: 80%; left: 25%; animation-delay: 1.6s; }
+.data-particles span:nth-child(10) {top: 5%;  left: 50%; animation-delay: 1.8s; }
+
+
+@keyframes particleFlow {
+    0% { transform: translateY(-10px) scale(0.5); opacity: 0; }
+    50% { opacity: 0.8; }
+    100% { transform: translateY(20px) scale(1); opacity: 0; }
+}
+
+
+.scanning-text-wrapper {
+    margin-top: 20px;
+}
+
+#scanningText {
+    font-size: 1.6em; /* Larger text */
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 10px rgba(255,255,255,0.3);
+}
+
+/* Animated dots for scanning text */
+#scanningText span {
+    opacity: 0;
+    animation: blinkDots 1.4s infinite;
+}
+#scanningText span:nth-child(1) { animation-delay: 0s; }
+#scanningText span:nth-child(2) { animation-delay: 0.2s; }
+#scanningText span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes blinkDots {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
 }
 
     </style>
@@ -150,49 +448,73 @@
         <a href="#" class="btn-signin">Sign In</a>
     </div>
 
-    <div class="hero-section">
-        <h1 class="hero-title">Analyze Your Resume with <span class="highlight">AI-Powered Insights</span></h1>
-        <p>Optimize your resume, get ATS-ready, and land your dream job faster.</p>
+    <div class="hero-section full-width-image">
+        <div class="floating-elements-wrapper">
+            <div class="floating-element fe-style1" style="top: 15%; left: 10%; width: 30px; height: 30px; animation-duration: 12s;"></div>
+            <div class="floating-element fe-style2" style="top: 60%; left: 85%; width: 20px; height: 20px; animation-duration: 9s; animation-delay: -2s;"></div>
+            <div class="floating-element fe-style1" style="top: 75%; left: 30%; width: 25px; height: 25px; animation-duration: 15s; animation-delay: -5s; border-radius: 50%;"></div>
+            <div class="floating-element fe-style2" style="top: 30%; left: 50%; width: 15px; height: 15px; animation-duration: 10s; animation-delay: -3.5s; border-radius: 3px;"></div>
+        </div>
+
+        <div class="hero-content-overlay">
+            <div class="hero-text-content">
+                <h1 class="hero-title">Analyze Your Resume with <span class="highlight">AI</span>-Powered Insights</h1>
+                <p>Optimize your resume, get ATS-ready, and land your dream job faster.</p>
+            </div>
+        </div>
+        <img src="{{ url_for('static', filename='ai_resume_analyzer_pic.jpg') }}" alt="AI Resume Analysis Illustration" class="hero-image-full" id="heroAiImage">
     </div>
 
     <div class="container">
         <h3 class="text-center mb-4">📂 Upload Your Resume for Analysis</h3>
-
         <form action="/" method="POST" enctype="multipart/form-data">
-            <label for="job_role"><b>Enter Job Role:</b></label>
-            <input type="text" name="job_role" class="form-control" placeholder="e.g. Data Scientist, Software Engineer" required>
-
-            <label class="mt-3"><b>Upload Resume:</b></label>
-            <div class="upload-box">
-                <input type="file" name="resume" class="form-control" required>
-                <p>📤 Drag and drop or click to upload (PDF/DOCX only)</p>
+            <div class="mb-3">
+                <label for="job_role" class="form-label"><b>Enter Job Role:</b></label>
+                <input type="text" name="job_role" id="job_role" class="form-control" placeholder="e.g. Data Scientist, Software Engineer" required>
             </div>
-
-            <label class="mt-3"><b>Job Description (Optional):</b></label>
-            <textarea name="job_description" class="form-control" placeholder="Paste the job description here..."></textarea>
-
+            <div class="mb-3">
+                <label for="resume" class="form-label"><b>Upload Resume:</b></label>
+                <div class="upload-box border p-3 rounded">
+                    <input type="file" name="resume" id="resume" class="form-control" required>
+                    <p class="mt-2 mb-0">📤 Drag and drop or click to upload (PDF/DOCX only)</p>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="job_description" class="form-label"><b>Job Description (Optional):</b></label>
+                <textarea name="job_description" id="job_description" class="form-control" rows="5" placeholder="Paste the job description here..."></textarea>
+            </div>
             <button type="submit" class="btn btn-primary mt-3 w-100">🚀 Upload and Analyze</button>
         </form>
     </div>
 
-    <div class="container mt-5 hidden">
-        <h3 class="text-center">🌟 Why Choose Us?</h3>
-        <div class="content-section">
-            <div class="box box-left">🎯 Tailored Scoring for Job Descriptions</div>
-            <div class="box box-middle">🧠 Multiple AI Perspectives</div>
-            <div class="box box-right">🚀 Continuous Innovation</div>
+    <div class="container mt-5 hidden"> <h3 class="text-center">🌟 Why Choose Us?</h3>
+        <div class="content-section mt-4"> <div class="box modern-box box-left">
+                <div class="box-icon">🚀</div>
+                <h4>Tailored Scoring for Job Descriptions</h4>
+                <p>Deep analysis aligned with specific job roles.</p>
+            </div>
+            <div class="box modern-box box-middle">
+                <div class="box-icon">💡</div>
+                <h4>Multiple AI Perspectives</h4>
+                <p>Leveraging diverse AI models for comprehensive feedback.</p>
+            </div>
+            <div class="box modern-box box-right">
+                <div class="box-icon">📈</div>
+                <h4>Continuous Innovation</h4>
+                <p>Always evolving with the latest AI advancements.</p>
+            </div>
         </div>
     </div>
-    <div class="container mt-5 hidden">
-        <h3 class="text-center">🚀 AI-Powered Resume Insights</h3>
-        <div class="row">
-            <div class="col-md-4">
+
+    <div class="container mt-5 hidden"> <h3 class="text-center">🚀 AI-Powered Resume Insights</h3>
+        <div class="row mt-4">
+            <div class="col-md-4 mb-3">
                 <div class="feature-box">
-                    <div class="icon">
-                        <img src="https://cdn-icons-png.flaticon.com/512/747/747310.png" alt="Analysis">
+                    <div>
+                        <div class="icon"><img src="https://cdn-icons-png.flaticon.com/512/747/747310.png" alt="Analysis"></div>
+                        <h4>Smart Resume Analysis</h4>
+                        <p>Get instant feedback on your resume's effectiveness.</p>
                     </div>
-                    <h4>Smart Resume Analysis</h4>
-                    <p>Get instant feedback on your resume's effectiveness.</p>
                     <ul>
                         <li>Analyzes keyword optimization for ATS systems</li>
                         <li>Identifies missing crucial skills or experiences</li>
@@ -200,13 +522,13 @@
                     </ul>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 mb-3">
                 <div class="feature-box">
-                    <div class="icon">
-                        <img src="https://cdn-icons-png.flaticon.com/512/2099/2099199.png" alt="Insights">
+                    <div>
+                        <div class="icon"><img src="https://cdn-icons-png.flaticon.com/512/2099/2099199.png" alt="Insights"></div>
+                        <h4>Detailed Insights</h4>
+                        <p>Understand how your resume performs across key metrics.</p>
                     </div>
-                    <h4>Detailed Insights</h4>
-                    <p>Understand how your resume performs across key metrics.</p>
                     <ul>
                         <li>Provides readability score and improvement tips</li>
                         <li>Measures impact of achievement statements</li>
@@ -214,13 +536,13 @@
                     </ul>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 mb-3">
                 <div class="feature-box">
-                    <div class="icon">
-                        <img src="https://cdn-icons-png.flaticon.com/512/2921/2921222.png" alt="Recommendations">
+                    <div>
+                        <div class="icon"><img src="https://cdn-icons-png.flaticon.com/512/2921/2921222.png" alt="Recommendations"></div>
+                        <h4>Actionable Recommendations</h4>
+                        <p>Receive specific suggestions to enhance your resume.</p>
                     </div>
-                    <h4>Actionable Recommendations</h4>
-                    <p>Receive specific suggestions to enhance your resume.</p>
                     <ul>
                         <li>Offers word choice alternatives for stronger impact</li>
                         <li>Highlights areas needing quantifiable results</li>
@@ -230,34 +552,138 @@
             </div>
         </div>
     </div>
-    
 
-    <div class="container mt-5 hidden">
-        <h3 class="text-center">🗣️ What Users Say</h3>
-        <p>"This tool helped me improve my resume and land interviews faster!" - <b>LinkedIn User</b></p>
-        <p>"Highly recommended for job seekers looking for ATS optimization!" - <b>Twitter User</b></p>
+   <h3 class="text-center">🗣️ What Users Say</h3>
+    <div class="testimonials-grid mt-4"> <div class="testimonial-item"> <p class="testimonial-text">" The AI analysis was surprisingly accurate and gave me actionable feedback to improve my resume for the specific job I was targeting!"</p>
+            <p class="testimonial-author">- Jane D., Aspiring Data Scientist</p>
+        </div>
+
+        <div class="testimonial-item">
+            <p class="testimonial-text">" I loved how it broke down different aspects and the suggestions were very practical. Landed more interviews after implementing the changes."</p>
+            <p class="testimonial-author">- John S., Marketing Professional</p>
+        </div>
+
+        <div class="testimonial-item">
+            <p class="testimonial-text">" The platform is intuitive and the insights are top-notch for anyone looking to get past ATS systems."</p>
+            <p class="testimonial-author">- Alex P., Software Engineer</p>
+        </div>
+
     </div>
-
     <div class="footer">
-        <p>🔗 Connect with us: 
-            <a href="#">LinkedIn</a> | 
-            <a href="#">GitHub</a> | 
-            <a href="#">Twitter</a>
+        <p class="social-links">🔗 Connect with us: 
+            <a href="#" title="LinkedIn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg></a>
+            <a href="#" title="GitHub"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg></a>
+            <a href="#" title="Twitter"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-.422.724-.665 1.56-.665 2.454 0 1.492.757 2.898 1.954 3.712-.742-.024-1.424-.234-2.033-.558v.054c0 2.185 1.541 3.931 3.589 4.348-.374.102-.774.156-1.194.156-.289 0-.57-.028-.836-.079.574 1.791 2.239 3.095 4.213 3.134-1.531 1.201-3.469 1.915-5.568 1.915-.362 0-.719-.021-1.071-.063 1.987 1.276 4.359 2.017 6.93 2.017 8.312 0 12.863-6.892 12.863-12.863 0-.195-.005-.39-.012-.583.881-.636 1.649-1.431 2.246-2.339z"/></svg></a>
         </p>
+        <p>&copy; 2024 AI Resume Analyzer. All rights reserved.</p>
     </div>
 
     <script>
         $(document).ready(function() {
+            // Waypoints for 3D pop-up animation
             $('.hidden').each(function() {
                 var element = $(this);
                 element.waypoint(function(direction) {
                     if (direction === 'down') {
-                        element.addClass('visible animate__animated animate__fadeInUp');
+                        element.addClass('visible');
                     }
-                }, { offset: '80%' });
+                }, { offset: '85%' });
+            });
+
+            // Dynamic background color change on scroll (for body)
+            const body = document.body;
+            let scrollTimeoutBackground;
+            function handleScrollBackground() {
+                const scrollableHeight = document.documentElement.scrollHeight - window.innerHeight;
+                if (scrollableHeight <= 0) { return; }
+                const scrollTop = window.scrollY;
+                if (scrollTop > window.innerHeight * 0.5 || scrollableHeight > window.innerHeight) {
+                    const scrollPercent = Math.min(scrollTop / scrollableHeight, 1);
+                    const startHue1 = 266; const startHue2 = 277;
+                    const hueRange = 120;
+                    const currentHue1 = (startHue1 + scrollPercent * hueRange) % 360;
+                    const currentHue2 = (startHue2 + scrollPercent * hueRange) % 360;
+                    body.style.background = `linear-gradient(135deg, hsl(${currentHue1}, 100%, 44%), hsl(${currentHue2}, 73%, 65%))`;
+                }
+            }
+            window.addEventListener('scroll', () => {
+                if (scrollTimeoutBackground) window.cancelAnimationFrame(scrollTimeoutBackground);
+                scrollTimeoutBackground = window.requestAnimationFrame(handleScrollBackground);
+            });
+            window.addEventListener('resize', () => {
+                if (scrollTimeoutBackground) window.cancelAnimationFrame(scrollTimeoutBackground);
+                scrollTimeoutBackground = window.requestAnimationFrame(handleScrollBackground);
+            });
+
+            // Parallax for Hero Section Text Elements
+            const heroTextTitle = $('.hero-text-content .hero-title');
+            const heroTextParagraph = $('.hero-text-content > p');
+            let scrollTimeoutParallaxText;
+            function handleScrollParallaxText() {
+                const scrollTop = $(window).scrollTop();
+                // Adjust multipliers for less aggressive parallax suitable for overlaid text
+                const parallaxFactorTitle = 0.08; 
+                const parallaxFactorParagraph = 0.05;
+                const opacityFactor = 0.3; // Max opacity reduction
+
+                if (heroTextTitle.length) {
+                    heroTextTitle.css({
+                        'transform': 'translateY(' + scrollTop * parallaxFactorTitle + 'px)',
+                        'opacity': 1 - Math.min(scrollTop / (window.innerHeight * 2), opacityFactor) 
+                    });
+                }
+                if (heroTextParagraph.length) {
+                    heroTextParagraph.css({
+                        'transform': 'translateY(' + scrollTop * parallaxFactorParagraph + 'px)',
+                        'opacity': 1 - Math.min(scrollTop / (window.innerHeight * 2.5), opacityFactor)
+                    });
+                }
+            }
+            if (heroTextTitle.length || heroTextParagraph.length) {
+                window.addEventListener('scroll', () => {
+                    if (scrollTimeoutParallaxText) window.cancelAnimationFrame(scrollTimeoutParallaxText);
+                    scrollTimeoutParallaxText = window.requestAnimationFrame(handleScrollParallaxText);
+                });
+            }
+
+            // 3D Tilt Effect for Feature Boxes
+            $('.feature-box').each(function() {
+                const box = $(this);
+                const maxTilt = 12;
+                box.on('mousemove', function(e) {
+                    const rect = this.getBoundingClientRect();
+                    const xInBox = e.clientX - rect.left; const yInBox = e.clientY - rect.top;
+                    const centerX = rect.width / 2; const centerY = rect.height / 2;
+                    const rotateX = ((yInBox - centerY) / centerY) * -maxTilt;
+                    const rotateY = ((xInBox - centerX) / centerX) * maxTilt;
+                    $(this).css('transform', `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.04, 1.04, 1.04)`);
+                });
+                box.on('mouseleave', function() {
+                    $(this).css('transform', 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)');
+                });
             });
         });
     </script>
+
+    <div id="scanning-overlay">
+    <div class="scanner-animation-container">
+        <div class="document-icon">
+            <div class="doc-line"></div>
+            <div class="doc-line"></div>
+            <div class="doc-line short"></div>
+            <div class="doc-line"></div>
+            <div class="doc-line short"></div>
+        </div>
+        <div class="scan-light"></div>
+        <div class="data-particles">
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+        </div>
+    </div>
+    <div class="scanning-text-wrapper">
+        <p id="scanningText">Initializing Analysis<span>.</span><span>.</span><span>.</span></p>
+    </div>
+</div>
 
 </body>
 </html>
