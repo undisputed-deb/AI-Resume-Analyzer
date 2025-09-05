@@ -9,8 +9,6 @@
 
 > **Transform your job search with AI insights.** Upload your resume and get instant analysis with strengths, weaknesses, ATS optimization tips, and keyword matching for any job role.
 
-**🔗 Live Demo:** [AI Resume Analyzer](https://github.com/undisputed-deb/AI-Resume-Analyzer)
-
 ---
 
 ## ✨ Features
